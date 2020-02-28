@@ -230,6 +230,7 @@ def delete_basket():
     return redirect(url_for('show_entries'))
 
 
+
 @app.route('/buy')
 def bay():
     if not session.get('logged_in'):
