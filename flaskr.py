@@ -229,6 +229,7 @@ def delete_basket():
     db.commit()
     return redirect(url_for('show_entries'))
 
+
 @app.route('/buy')
 def bay():
     if not session.get('logged_in'):
