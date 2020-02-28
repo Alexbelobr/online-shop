@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+{% block body %}
+    {% if session.logged_in and session.is_admin %}
+    <form action="{{ url_for('bay') }}" method="post" class="entries">
+
+    </form>
+    {% endif %}
+
+    <p id="demo"></p>
+<!--створити ще одну таблицю для кошика, дані брати з basket_entries -->
+
+    <h2>My Basket</h2>
+    <table class="entries">
+
+        <tr>
+            <th>Name</th>
+            <th>Model</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Cost</th>
+        </tr>
+
+    {% for bask in basket %}
+        {% if session.logged_in and session.userId %}
+            <tr>
+                <td>{{ bask.name }}</td>
+                <td>{{ bask.model }}</td>
+                <td>{{ bask.price }}</td>
+                <td>{{ bask.quantity }}</td>
+                <td>{{ bask.cost }}</td>
+
+
+            </tr>
+        {% endif %}
+    {% endfor %}
+
+    </table>
+
+{% if session.logged_in and session.userId %}
+    <p>SUM = {{ sum }} $ </p>
+
+    <a href="{{ url_for('to_buy') }}">to buy</a>
+{% endif %}
+
+{% endblock %}

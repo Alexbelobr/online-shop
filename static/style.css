@@ -1,0 +1,30 @@
+body {/* font-family: sans-serif;*/ background: #eee; }
+a  { font-size: 1.5em; color: #377ba8; }
+h1, h2, h3 { font-family: 'Georgia', serif; color: #377ba8; margin: 0; }
+h1 { border-bottom: 2px solid #eee; }
+h2 { font-size: 1.2em; }
+h3 { font-size: 0.5em}
+.page { margin: 2em auto; width: 99%; border: 5px solid #ccc;
+padding: 1em; background: white; }
+.entries { font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 50%;
+}
+.entries td { border: 2px solid #808080; align-content: center;
+    padding: 8px;
+}
+.entries th { border: 2px solid #808080; padding: 8px; }
+.entries tr:nth-child(even){background-color: #f2f2f2; }
+.entries tr:hover {background-color: #ddd; }
+.entries th {padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;}
+.add-entry { font-size: 0.9em; border-bottom: 1px solid #eee; }
+.add-entry dl { font-weight: bold; }
+.metanav { text-align: right; font-size: 0.8em; padding: 0.3em;
+margin-bottom: 1em; background: #fafafa; }
+.flash { background: #cee5F5; padding: 0.5em;
+border: 1px solid #aacbe2; }
+.error { background: #f0d6d6; padding: 0.5em; }

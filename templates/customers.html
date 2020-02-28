@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% block body %}
+{% if session.logged_in and session.is_admin %}
+
+    <h2>Customers</h2>
+    <table class="entries">
+        <tr>
+            <th>Name</th>
+            <th>Model</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Customer</th>
+            <th>custom_login</th>
+            <th>custom_name</th>
+            <th>Date</th>
+        </tr>
+
+    {% for z in customers %}
+        {% if session.logged_in and session.is_admin  %}
+
+            <tr>
+                <th>{{ z.name }}</th>
+                <th>{{ z.model  }}</th>
+                <th>{{ z.price }}</th>
+                <th>{{ z.quantity }}</th>
+                <th>{{ z.customer }}</th>
+                <th>{{ z.custom_login }}</th>
+                <th>{{ z.custom_name }}</th>
+                <th>{{ z.date }}</th>
+
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </table>
+
+
+
+{% endif %}
+{% endblock %}

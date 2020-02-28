@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block body %}
+{% if session.logged_in and session.is_admin %}
+
+    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+        <dl>
+            <dt>Name:
+            <dd><input type=text size=35 name=name>
+            <dt>Model:
+            <dd><input type="text" size=35 name="model">
+            <dt>Price:
+            <dd><input type="text" size="25" name="price">
+            <dt>Quantity:
+            <dd><input type="text" size="25" name="quantity">
+            <dd><input type=submit value="Add Product">
+
+        </dl>
+    </form>
+
+    <p id="demo"></p>
+     <form action="{{ url_for('customers') }}" method=get class=add-entry>
+        <dl>
+            <dd><input type=submit value="See Customers">
+        </dl>
+    </form>
+
+{% endif %}
+
+    <p id="demo"></p>
+
+    <h2>Catalog</h2>
+    <table class="entries">
+        <tbody>
+            <tr>
+                <th>Name</th>
+                <th>Model</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th></th>
+            </tr>
+        </tbody>
+
+    {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.model }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.quantity }}</td>
+            <td>
+                {% if session.logged_in and session.userId %}
+                <form action="{{ url_for('add_basket')}}" method="post">
+                    <input type="hidden" name="id" value="{{ product.id }}" />
+                    <input type="text" class="cbutton" value="1" name="quantity"/>
+                    <input type="submit" name="basket" value="in basket" class="cbutton"/>
+                </form>
+                {% endif %}
+
+                {%  if session.logged_in and session.is_admin %}
+                <form action="{{ url_for('delete_product') }}" method="post">
+                    <input type="hidden" name="id" value="{{ product.id }}"/>
+                    <input type="submit" name="basket" value="Delete" class="cbutton"/>
+                </form>
+            {% endif %}
+            </td>
+        </tr>
+
+        {% else %}
+            <tr><th>The product is available to register users</th></tr>
+    {% endfor %}
+
+    </table>
+
+<hr>
+   <!-- створити ще одну таблицю для кошика, дані брати з basket_products -->
+<h2>Basket</h2>
+    <table class="entries">
+    <tr>
+        <th>Name</th>
+        <th>Model</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Cost</th>
+        <th></th>
+    </tr>
+
+    {% for entry in basket %}
+
+    <tr>
+        <td>{{ entry.name }}</td>
+        <td>{{ entry.model }}</td>
+        <td>{{ entry.price }}</td>
+        <td>{{ entry.quantity }}</td>
+        <td>{{ entry.cost }}</td>
+        <td>
+            <form action="{{ url_for('delete_basket') }}" method="post">
+                <input type="hidden" name="id" value="{{ entry.basket_Id }}"/>
+                <input type="submit" name="basket" value="Delete" class="cbutton"/>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    </table>
+
+    <a href="{{ url_for('bay') }}">go to pay</a>
+{% endblock %}
