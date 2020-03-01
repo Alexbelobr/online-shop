@@ -80,10 +80,10 @@ def close_db(error):
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
 
-"""Функция представления передаёт записи в виде словаря шаблону show_entries.html
+"""Функция представления передаёт записи в виде словаря шаблону list_product.html
 и возвращает сформированное отображение:"""
 @app.route('/')
-def show_entries():
+def list_product():
     db = get_db()
     cur = db.execute(
         'select * from products '
@@ -91,7 +91,7 @@ def show_entries():
     products = cur.fetchall()
 
     if not session.get('logged_in'):
-        return render_template('show_entries.html', products=products, basket=[])
+        return render_template('list_product.html', products=products, basket=[])
     cur = db.execute(
         'select '
         'p.name as name, '
@@ -110,14 +110,14 @@ def show_entries():
         for x in range(len(row)):
           print(row[x])
 
-    return render_template('show_entries.html', products=products, basket=basket)
+    return render_template('list_product.html', products=products, basket=basket)
 
 
 
 
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
 новые записи. Оно реагирует только на запросы типа POST, а фактическая форма
-отображается на странице show_entries."""
+отображается на странице list_product."""
 @app.route('/add', methods=['POST'])
 def add_entry():
     if not session.get('logged_in'):
@@ -131,7 +131,7 @@ def add_entry():
 
     db.commit()
     flash('New entry was successfully posted')
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('list_product'))
 
 
 
@@ -144,7 +144,7 @@ def delete_product():
         'delete from products '
         'where id=?', [request.form['id']])
     db.commit()
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('list_product'))
 
 
 @app.route('/add_basket', methods=['POST'])
@@ -152,7 +152,7 @@ def add_basket():
     print("add_basket")
 
     if not session.get('logged_in'):
-        return render_template('show_entries.html', products=[], basket=[])
+        return render_template('list_product.html', products=[], basket=[])
     db = get_db()
     cur = db.execute(
         'select quantity '
@@ -165,7 +165,7 @@ def add_basket():
 
     if quantityInStock < quantityToBuy:
         flash('There are not enough goods stock!')
-        return redirect(url_for('show_entries'))
+        return redirect(url_for('list_product'))
 
 
     quantityInStock = quantityInStock - quantityToBuy
@@ -201,14 +201,14 @@ def add_basket():
              session['userId']])
 
     db.commit()
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('list_product'))
 
 
 @app.route('/delete_basket', methods=['POST'])
 def delete_basket():
     print("delete_basket")
     if not session.get('logged_in'):
-        return render_template('show_entries.html', basket=[], products=[])
+        return render_template('list_product.html', basket=[], products=[])
     db = get_db()
     cur = db.execute(
         'select productsId, quantity '
@@ -227,7 +227,7 @@ def delete_basket():
         [returnQty, productsId])
 
     db.commit()
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('list_product'))
 
 
 
@@ -293,7 +293,7 @@ def customers():
 
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
 новые записи. Оно реагирует только на запросы типа POST, а фактическая форма
-отображается на странице show_entries."""
+отображается на странице list_product."""
 """"@app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -379,7 +379,7 @@ def login():
             session['userId'] = user['id']
             flash('You were logged in')
 
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('list_product'))
 
     return render_template('login.html', error=error)
 
@@ -390,7 +390,7 @@ def logout():
     session.pop('logged_in', None)
     session.pop('is_admin', None)
     flash('You where logged out')
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('list_product'))
 
 
 
