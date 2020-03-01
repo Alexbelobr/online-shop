@@ -114,7 +114,7 @@ def list_product():
 
     for row in basket:
         for x in range(len(row)):
-          print(row[x])
+            print(row[x])
 
     return render_template('list_product.html', products=products, basket=basket)
 
