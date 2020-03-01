@@ -232,7 +232,7 @@ def delete_basket():
 
 
 @app.route('/buy')
-def bay():
+def buy():
     if not session.get('logged_in'):
         abort(401)
     db = get_db()

@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% block body %}
     {% if session.logged_in and session.is_admin %}
-    <form action="{{ url_for('bay') }}" method="post" class="entries">
+    <form action="{{ url_for('buy') }}" method="post" class="entries">
 
     </form>
     {% endif %}
