@@ -305,16 +305,16 @@ def login():
         else:
             session['logged_in'] = True
             flash('You were logged in')
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('list_product'))
     return render_template('login.html', error=error)
 """
-@app.route('/add_users', methods=['GET', 'POST'])
-def add_users():
+@app.route('/add_user', methods=['GET', 'POST'])
+def add_user():
     if request.method == 'POST':
         login = request.form['login_']
         password = request.form['password']
         if login == '' or password == '':
-            return render_template('add_users.html', error='Invalid registration, the field must be filled!')
+            return render_template('add_user.html', error='Invalid registration, the field must be filled!')
         else:
             db = get_db()
             cur = db.execute(
@@ -325,7 +325,7 @@ def add_users():
             log = cur.fetchone()
 
             if log is not None:
-                return render_template('add_users.html', error='Invalid registration, a user with this log already exists!')
+                return render_template('add_user.html', error='Invalid registration, a user with this log already exists!')
 
             flash('You where registered')
 
@@ -340,7 +340,7 @@ def add_users():
                  request.form['email']])
             db.commit()
 
-    return render_template('add_users.html', error=None)
+    return render_template('add_user.html', error=None)
 
 @app.route('/add_bank')
 def to_buy():
