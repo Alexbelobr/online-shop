@@ -118,8 +118,8 @@ def list_product():
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
 новые записи. Оно реагирует только на запросы типа POST, а фактическая форма
 отображается на странице list_product."""
-@app.route('/add', methods=['POST'])
-def add_entry():
+@app.route('/add_product', methods=['POST'])
+def add_product():
     if not session.get('logged_in'):
         abort(401)
     db = get_db()
