@@ -3,22 +3,19 @@ import sqlite3
 from flask import Flask, request, session, g, redirect, url_for,\
     abort, render_template, flash
 
-import datetime
-
-
 # конфигурация
-#DATABASE = 'data_.db'
-#DEBUG = True
-#SECRET_KEY = 'development key'
-#USERNAME = 'admin'
-#PASSWORD = 'default'
+# DATABASE = 'data_.db'
+# DEBUG = True
+# SECRET_KEY = 'development key'
+# USERNAME = 'admin'
+# PASSWORD = 'default'
 
-#алее, мы должны создать наше текущее приложение и инициализировать
+# далее, мы должны создать наше текущее приложение и инициализировать
 # его в помощью конфигурации из того же файла, т. е. flaskr.py:
 # создаём наше маленькое приложение :)
 
 app = Flask(__name__)
-#wsgi_app = app.wsgi_app
+# wsgi_app = app.wsgi_app
 app.config.from_object(__name__)
 
 # Загружаем конфиг по умолчанию и переопределяем в конфигурации часть
@@ -27,17 +24,19 @@ app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'data_.db'),
     DEBUG=True,
     SECRET_KEY='development key'
-    #USERNAME='admin',
-    #PASSWORD='admin'
+
 ))
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
-#Объект Config работает подобно словарю, поэтому мы можем обновлять его с помощью новых значений.
+
+# Объект Config работает подобно словарю, поэтому мы можем обновлять его с помощью новых значений.
 
 """обавим также метод, который позволяет простым способом соединиться с указанной базой данных.
  Он может быть использован для открытия соединения по запросу, а также из интерактивной командной 
  оболочки Python или из скрипта. Это пригодится в дальнейшем. Мы создаём простое соединение 
  с базой данных SQLite и далее просим его использовать для представления строк объект sqlite3.Row.
   Это позволит нам рассматривать строки, как если бы они были словарями, а не кортежами."""
+
+
 def connect_db():
     print("connect_db")
     print(app.config['DATABASE'])
@@ -45,13 +44,13 @@ def connect_db():
     rv.row_factory = sqlite3.Row
     return rv
 
+
 """функцию с именем init_db, которая инициализирует базу данных. Позвольте, я сперва покажу вам код. 
 Просто добавьте в flaskr.py эту функцию после функции connect_db:"""
 
+
 def init_db(db):
 
-    #with app.app_context():
-        #db = get_db()
     with app.open_resource('shema.sql', mode='r') as f:
 
         db.cursor().executescript(f.read())
@@ -64,6 +63,7 @@ def init_db(db):
 # Всё, что вам надо знать на этот момент - это то,
 # что вы можете безопасно сохранять информацию в объекте g.
 
+
 def get_db():
     """Если ещё нет соединения с базой данных, открыть новое - для
     текущего контекста приложения"""
@@ -72,16 +72,22 @@ def get_db():
         init_db(g.sqlite_db)
     return g.sqlite_db
 
+
 """Flask обеспечил нас декоратором teardown_appcontext(). Он выполняется каждый раз, 
 когда происходит разрыв контекста приложения:"""
+
+
 @app.teardown_appcontext
 def close_db(error):
     """Функция, обозначенная как teardown_appcontext() вызывается каждый раз при разрыве контекста приложения."""
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
 
+
 """Функция представления передаёт записи в виде словаря шаблону list_product.html
 и возвращает сформированное отображение:"""
+
+
 @app.route('/')
 def list_product():
     db = get_db()
@@ -113,11 +119,11 @@ def list_product():
     return render_template('list_product.html', products=products, basket=basket)
 
 
-
-
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
 новые записи. Оно реагирует только на запросы типа POST, а фактическая форма
 отображается на странице list_product."""
+
+
 @app.route('/add_product', methods=['POST'])
 def add_product():
     if not session.get('logged_in'):
@@ -132,7 +138,6 @@ def add_product():
     db.commit()
     flash('New entry was successfully posted')
     return redirect(url_for('list_product'))
-
 
 
 @app.route('/delete-product', methods=['POST'])
@@ -167,11 +172,9 @@ def add_basket():
         flash('There are not enough goods stock!')
         return redirect(url_for('list_product'))
 
-
     quantityInStock = quantityInStock - quantityToBuy
 
     print('quantityInStock = ' + str(quantityInStock))
-
 
     db.execute(
         'update products '
@@ -230,7 +233,6 @@ def delete_basket():
     return redirect(url_for('list_product'))
 
 
-
 @app.route('/buy')
 def buy():
     if not session.get('logged_in'):
@@ -255,15 +257,14 @@ def buy():
         'insert into customers('
         'name, model, price, quantity, customer, date ) '
         'select p.name, p.model, p.price, b.quantity, '
-        #'sum (p.price * b.quantity) as sum,'
         ' b.userId, datetime() '
         'from products p, basket b '
         'where p.id=b.productsId and b.userId=? ',
         [session['userId']])
 
-
     db.commit()
     return render_template('bay_products.html', basket=basket, sum=sum)
+
 
 @app.route('/customers', methods=['GET'])
 def customers():
@@ -276,7 +277,6 @@ def customers():
         'c.model as model, '
         'c.price as price, '
         'c.quantity as quantity, '
-       # 'c.sum as sum, '
         'c.customer as customer, '
         'u.login_ as custom_login,'
         'u.name as custom_name, '
@@ -285,8 +285,6 @@ def customers():
         'where c.customer = u.id')
 
     customers = cur.fetchall()
-
-
 
     return render_template('customers.html', customers=customers)
 
@@ -308,6 +306,8 @@ def login():
             return redirect(url_for('list_product'))
     return render_template('login.html', error=error)
 """
+
+
 @app.route('/add_user', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
@@ -342,6 +342,7 @@ def add_user():
 
     return render_template('add_user.html', error=None)
 
+
 @app.route('/add_bank')
 def to_buy():
 
@@ -356,6 +357,7 @@ def to_buy():
         [session['userId']])
     sum = cur.fetchall()
     return render_template('add_bank.html', sum=sum)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -383,7 +385,9 @@ def login():
 
     return render_template('login.html', error=error)
 
+
 """Функция выхода, с другой стороны, удаляет обратно этот ключ из сессии. """
+
 
 @app.route('/logout')
 def logout():
@@ -391,8 +395,6 @@ def logout():
     session.pop('is_admin', None)
     flash('You where logged out')
     return redirect(url_for('list_product'))
-
-
 
 
 """Наконец, мы просто добавляем строчку в конце файла, которая запускает сервер, если 
