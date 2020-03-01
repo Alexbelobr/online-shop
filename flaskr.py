@@ -82,7 +82,7 @@ def close_db(error):
 
 """Функция представления передаёт записи в виде словаря шаблону list_product.html
 и возвращает сформированное отображение:"""
-@app.route('/')
+@app.route('/list_product')
 def list_product():
     db = get_db()
     cur = db.execute(
