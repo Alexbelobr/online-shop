@@ -154,7 +154,6 @@ def delete_product():
 
 @app.route('/add_basket', methods=['POST'])
 def add_basket():
-    print("add_basket")
 
     if not session.get('logged_in'):
         return render_template('list_product.html', products=[], basket=[])
@@ -209,7 +208,7 @@ def add_basket():
 
 @app.route('/delete_basket', methods=['POST'])
 def delete_basket():
-    print("delete_basket")
+
     if not session.get('logged_in'):
         return render_template('list_product.html', basket=[], products=[])
     db = get_db()
@@ -292,20 +291,6 @@ def customers():
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
 новые записи. Оно реагирует только на запросы типа POST, а фактическая форма
 отображается на странице list_product."""
-""""@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error = None
-    if request.method == 'POST':
-        if request.form['username'] != app.config['USERNAME']:
-            error = 'Invalid username'
-        elif request.form['password'] != app.config['PASSWORD']:
-            error = 'Invalid password'
-        else:
-            session['logged_in'] = True
-            flash('You were logged in')
-            return redirect(url_for('list_product'))
-    return render_template('login.html', error=error)
-"""
 
 
 @app.route('/add_user', methods=['GET', 'POST'])
@@ -325,7 +310,8 @@ def add_user():
             log = cur.fetchone()
 
             if log is not None:
-                return render_template('add_user.html', error='Invalid registration, a user with this log already exists!')
+                return render_template('add_user.html',
+                                       error='Invalid registration, a user with this log already exists!')
 
             flash('You where registered')
 
