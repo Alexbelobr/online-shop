@@ -6,12 +6,30 @@
         <ul>
             <li>Company</li>
             <li>Name of Bank: KredoBank</li>
-            <li>MFO of Bank:  303555 </li>
+            <li>IBAN:  UA3334446666777 </li>
             <li>Code of Bank: 45677756</li>
             <li>Bank Account: 888444555777</li>
         </ul>
     </div>
 
+{% if session.logged_in and session.userId %}
 
+    <form action="{{ url_for('add_product') }}" method=post class=add-entry>
+        <dl>
+            <dt>Card type:
+            <dd><input type=text size=35 name="card_type">
+            <dt>Number card:
+            <dd><input type="text" size=35 name="number">
+            <dt>Express end:
+            <dd><input type="text" size="15" name="date">
+            <dt>iD:
+            <dd><input type="text" size="10" name="iD">
+            <dt>Sum to puy:
+            <dd><input type="text" size="10" name="sum">
+            <p id="demo"></p>
+            <dd><input type=submit value="Submit">
 
+        </dl>
+    </form>
+{% endif %}
 {% endblock %}
