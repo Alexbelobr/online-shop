@@ -41,5 +41,35 @@
 
     <a href="{{ url_for('to_buy') }}">to buy</a>
 {% endif %}
+  <p id="demo"></p>
+
+    <h2>Bank Details</h2>
+     <div>
+        <ul>
+            <li>Company Shop</li>
+            <li>Name of Bank: KredoBank</li>
+            <li>IBAN:  UA3334446666777 </li>
+            <li>Code of Bank: 45677756</li>
+
+        </ul>
+    </div>
+
+{% if session.logged_in and session.userId %}
+
+    <form action="{{ url_for('buy') }}" method=post class=add-entry>
+        <dl>
+
+            <dt>Card number:
+            <dd><input type="text" size=35 name="number">
+            <dt>Valid thru :
+            <dd><input type="text" size="15" name="date">
+            <dt>Id:
+            <dd><input type="text" size="10" name="iD">
+            <p id="demo"></p>
+            <dd><input type=submit value="Submit">
+
+        </dl>
+    </form>
+{% endif %}
 
 {% endblock %}
