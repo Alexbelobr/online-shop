@@ -238,7 +238,8 @@ def buy():
         abort(401)
     db = get_db()
     cur = db.execute(
-        'select p.name, p.model, p.price, b.quantity, (p.price * b.quantity) as cost '
+        'select p.name, p.model, p.price, b.quantity, (p.price * b.quantity)'
+        ' as cost '
         'from basket b, products p '
         'where b.productsId = p.id '
         'and b.userId=?', [session['userId']])
@@ -254,6 +255,26 @@ def buy():
 
     db.execute(
         'insert into customers('
+        'name, model, price, quantity, customer, date ) '
+        'select p.name, p.model, p.price, b.quantity, '
+        ' b.userId, datetime() '
+        'from products p, basket b '
+        'where p.id=b.productsId and b.userId=? ',
+        [session['userId']])
+
+    cur = db.execute(
+        'select productsId, quantity '
+        'from basket where id=?',
+        [request.form['id']])
+    row = cur.fetchone()
+    productsId = int(row[0])
+    history = int(row[1])
+
+    db.execute(
+        'delete from basket '
+        'where id = ?', [request.form['id']])
+    db.execute(
+        'insert into shopping_history('
         'name, model, price, quantity, customer, date ) '
         'select p.name, p.model, p.price, b.quantity, '
         ' b.userId, datetime() '

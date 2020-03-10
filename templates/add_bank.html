@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-<h2>Bank Details</h2>
+<h2>Shopping History</h2>
      <div>
         <ul>
             <li>Company Shop</li>
@@ -14,4 +14,33 @@
     <div>
         <ul>Shop Сompany thanks you for the products you bought</ul>
     </div>
+
+        <p id="demo"></p>
+<!--створити ще одну таблицю shopping history, дані брати з basket_entries -->
+
+    <h2>Shopping History</h2>
+    <table class="entries">
+
+        <tr>
+            <th>Name</th>
+            <th>Model</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Customer</th>
+            <th>Date</th>
+        </tr>
+
+    {% for h in history %}
+        {% if session.logged_in and session.userId %}
+            <tr>
+                <td>{{ h.name }}</td>
+                <tr>{{ h.model }}</tr>
+                <tr>{{ h.quantity }}</tr>
+                <tr>{{ h.price }}</tr>
+                <tr>{{ h.customer }}</tr>
+                <tr>{{ h.date }}</tr>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </table>
 {% endblock %}

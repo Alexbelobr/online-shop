@@ -64,3 +64,16 @@ create table if not exists `customers`
   customer text not null ,
   date text not null
 );
+
+--створити таблицю історію попкупок для покупців
+
+create table if not exists `shopping_history`
+(
+  id integer primary key autoincrement ,
+  name text not null ,
+  model text not null ,
+  quantity text not null ,
+  price text not null ,
+  customer text not null ,
+  date text not null
+);
