@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from flask import Flask, request, session, g, redirect, url_for,\
+from flask import Flask, request, session, g, redirect, url_for, \
     abort, render_template, flash
 
 # конфигурация
@@ -50,9 +50,7 @@ def connect_db():
 
 
 def init_db(db):
-
     with app.open_resource('shema.sql', mode='r') as f:
-
         db.cursor().executescript(f.read())
         db.commit()
     print('Initialized the database.')
@@ -60,6 +58,8 @@ def init_db(db):
     """ Метод open_resource() объекта приложения является удобной функцией-помощником, 
 которая откроет ресурс, обеспечиваемый приложением. Эта функция открывает файл из 
 места расположения ресурсов (в нашем случае папка flaskr_n), и позволяет вам из него читать """
+
+
 # Всё, что вам надо знать на этот момент - это то,
 # что вы можете безопасно сохранять информацию в объекте g.
 
@@ -154,7 +154,6 @@ def delete_product():
 
 @app.route('/add_basket', methods=['POST'])
 def add_basket():
-
     if not session.get('logged_in'):
         return render_template('list_product.html', products=[], basket=[])
     db = get_db()
@@ -208,7 +207,6 @@ def add_basket():
 
 @app.route('/delete_basket', methods=['POST'])
 def delete_basket():
-
     if not session.get('logged_in'):
         return render_template('list_product.html', basket=[], products=[])
     db = get_db()
@@ -230,6 +228,46 @@ def delete_basket():
 
     db.commit()
     return redirect(url_for('list_product'))
+
+
+@app.route('/del_bask', methods=['GET', 'POST'])
+def del_bask():
+    if not session.get('logged_in'):
+        return render_template('list_product.html.html', basket=[], products=[])
+    db = get_db()
+
+    if request.form:
+        db.execute('insert into card(number, valid , svv)'
+                   ' VALUES (?, ?, ? )',
+                   [request.form['number'], request.form['valid'],
+                    request.form['svv']])
+
+        db.execute(
+            'insert into history('
+            'name, model, quantity, price, customer, date) '
+            'select p.name, p.model, b.quantity, p.price, b.userId, datetime() '
+            'from products p, basket b '
+            'where p.id=b.productsId and b.userId=?', [session['userId']])
+
+        db.execute(
+            'delete from basket '
+            'where userId = ?', [session['userId']])
+
+        db.commit()
+
+    cur = db.execute(
+        'select h.name as name, '
+        'h.model as model, '
+        'h.quantity as quantity,'
+        'h.price as price,'
+        'h.customer as customer,'
+        'h.date as date '
+        'from history h '
+        'where h.customer=?', [session['userId']])
+
+    history = cur.fetchall()
+
+    return render_template('add_bank.html', history=history)
 
 
 @app.route('/buy')
@@ -255,26 +293,6 @@ def buy():
 
     db.execute(
         'insert into customers('
-        'name, model, price, quantity, customer, date ) '
-        'select p.name, p.model, p.price, b.quantity, '
-        ' b.userId, datetime() '
-        'from products p, basket b '
-        'where p.id=b.productsId and b.userId=? ',
-        [session['userId']])
-
-    cur = db.execute(
-        'select productsId, quantity '
-        'from basket where id=?',
-        [request.form['id']])
-    row = cur.fetchone()
-    productsId = int(row[0])
-    history = int(row[1])
-
-    db.execute(
-        'delete from basket '
-        'where id = ?', [request.form['id']])
-    db.execute(
-        'insert into shopping_history('
         'name, model, price, quantity, customer, date ) '
         'select p.name, p.model, p.price, b.quantity, '
         ' b.userId, datetime() '
@@ -352,7 +370,6 @@ def add_user():
 
 @app.route('/add_bank')
 def to_buy():
-
     if not session.get('logged_in'):
         abort(401)
 
@@ -363,6 +380,7 @@ def to_buy():
         'where p.id=b.productsId and b.userId=?',
         [session['userId']])
     sum = cur.fetchall()
+
     return render_template('add_bank.html', sum=sum)
 
 
@@ -407,9 +425,5 @@ def logout():
 """Наконец, мы просто добавляем строчку в конце файла, которая запускает сервер, если 
 мы хотим запустить этот файл как отдельное приложение:"""
 
-
-
 if __name__ == '__main__':
-
     app.run()
-

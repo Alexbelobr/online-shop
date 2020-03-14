@@ -1,10 +1,6 @@
 {% extends 'layout.html' %}
 {% block body %}
-    {% if session.logged_in and session.is_admin %}
-    <form action="{{ url_for('buy') }}" method="post" class="entries">
 
-    </form>
-    {% endif %}
 
     <p id="demo"></p>
 <!--створити ще одну таблицю для кошика, дані брати з basket_entries -->
@@ -39,7 +35,7 @@
 {% if session.logged_in and session.userId %}
     <p>SUM = {{ sum }} $ </p>
 
-    <a href="{{ url_for('to_buy') }}">to buy</a>
+
 {% endif %}
   <p id="demo"></p>
 
@@ -56,20 +52,23 @@
 
 {% if session.logged_in and session.userId %}
 
-    <form action="{{ url_for('buy') }}" method=post class=add-entry>
+<form action="{{ url_for('del_bask') }}" method="post" >
         <dl>
 
             <dt>Card number:
             <dd><input type="text" size=35 name="number">
             <dt>Valid thru :
-            <dd><input type="text" size="15" name="date">
-            <dt>Id:
-            <dd><input type="text" size="10" name="iD">
+            <dd><input type="text" size="15" name="valid">
+            <dt>cvv:
+            <dd><input type="text" size="10" name="svv">
             <p id="demo"></p>
-            <dd><input type=submit value="Submit">
+            <dd><input type=submit value="Submit" class="cbutton">
 
         </dl>
-    </form>
+</form>
+    {% if session.logged_in and session.userId %}
+    <!-- <a href="{{ url_for('del_bask') }}">to buy</a> -->
+    {% endif %}
 {% endif %}
 
 {% endblock %}

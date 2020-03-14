@@ -67,7 +67,7 @@ create table if not exists `customers`
 
 --створити таблицю історію попкупок для покупців
 
-create table if not exists `shopping_history`
+create table if not exists `history`
 (
   id integer primary key autoincrement ,
   name text not null ,
@@ -76,4 +76,13 @@ create table if not exists `shopping_history`
   price text not null ,
   customer text not null ,
   date text not null
+);
+
+--створити таблицю card
+create table  if not exists `card`
+( id integer primary key autoincrement ,
+number text not null ,
+valid text not null ,
+svv text not null
+
 );
