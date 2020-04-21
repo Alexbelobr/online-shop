@@ -236,36 +236,55 @@ def del_bask():
         return render_template('list_product.html.html', basket=[], products=[])
     db = get_db()
 
+    history = []
+
     if request.form:
-        db.execute('insert into card(number, valid , svv)'
-                   ' VALUES (?, ?, ? )',
-                   [request.form['number'], request.form['valid'],
-                    request.form['svv']])
+
+        historCard = db.execute('select id '
+                                'from cards '
+                                'where number = ? and userId = ?',
+                                [request.form['number'], session['userId']])
+        card = historCard.fetchone()
+
+        if not card:
+            db.execute('insert into cards(number, valid , svv, userId )'
+                       ' VALUES (?, ?, ?, ? )',
+                       [request.form['number'], request.form['valid'],
+                        request.form['svv'], session['userId']])
 
         db.execute(
             'insert into history('
-            'name, model, quantity, price, customer, date) '
-            'select p.name, p.model, b.quantity, p.price, b.userId, datetime() '
-            'from products p, basket b '
-            'where p.id=b.productsId and b.userId=?', [session['userId']])
+            'productId, quantity, price, date, userId, cardId) '
+            'select '
+            'b.productsId, '
+            'b.quantity, '
+            'p.price, '
+            'datetime(), '
+            'u.id, '
+            'c.id '
+            'from products p , cards c, basket b, users u '
+            'where p.id=b.productsId and u.id=b.userId  and c.userId=u.id and c.number=?'
+            'and u.id=?', [request.form['number'], session['userId']])
 
         db.execute(
             'delete from basket '
-            'where userId = ?', [session['userId']])
+            'where userId=?', [session['userId']])
 
         db.commit()
 
-    cur = db.execute(
-        'select h.name as name, '
-        'h.model as model, '
-        'h.quantity as quantity,'
-        'h.price as price,'
-        'h.customer as customer,'
-        'h.date as date '
-        'from history h '
-        'where h.customer=?', [session['userId']])
+        cur = get_db().execute(
+            'select p.name as name, '
+            'p.model as model, '
+            'h.quantity as quantity, '
+            'p.price as price,'
+            'u.name as customer, '
+            'h.date as date '
+            'from  products p, users u, history h '
+            'where h.userId = ? '
+            'and h.productId = p.id '
+            'and u.id = h.userId', [session['userId']])
 
-    history = cur.fetchall()
+        history = cur.fetchall()
 
     return render_template('add_bank.html', history=history)
 

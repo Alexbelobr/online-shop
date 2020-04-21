@@ -28,6 +28,7 @@
             <th>Price</th>
             <th>Customer</th>
             <th>Date</th>
+
         </tr>
 
     {% for h in history %}
@@ -39,6 +40,7 @@
                 <td>{{ h.price }}</td>
                 <td>{{ h.customer }}</td>
                 <td>{{ h.date }}</td>
+
             </tr>
         {% endif %}
     {% endfor %}

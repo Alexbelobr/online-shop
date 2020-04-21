@@ -50,25 +50,35 @@
         </ul>
     </div>
 
+
+
 {% if session.logged_in and session.userId %}
 
-<form action="{{ url_for('del_bask') }}" method="post" >
-        <dl>
 
-            <dt>Card number:
-            <dd><input type="text" size=35 name="number">
-            <dt>Valid thru :
-            <dd><input type="text" size="15" name="valid">
-            <dt>cvv:
-            <dd><input type="text" size="10" name="svv">
+<form action="{{ url_for('del_bask') }}" method="post">
+
+        <dl>
+            <dt>Card number:</dt>
+            <dd><input type="text" size=35 name="number"/>
+            <dt>Valid thru :</dt>
+            <dd><input type="text" size="15" name="valid"/>
+            <dt>svv:</dt>
+            <dd><input type="text" size="10" name="svv"/>
+
             <p id="demo"></p>
-            <dd><input type=submit value="Submit" class="cbutton">
+
+
+            <dd><input type=submit value="Submit" class="cbutton"/>
 
         </dl>
+{% for card in cards %}
+        <input type="hidden" name="id" value="{{ card.userId }}"/>
+{% endfor %}
+
 </form>
-    {% if session.logged_in and session.userId %}
-    <!-- <a href="{{ url_for('del_bask') }}">to buy</a> -->
-    {% endif %}
+
+
+
 {% endif %}
 
 {% endblock %}

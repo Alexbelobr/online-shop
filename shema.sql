@@ -70,19 +70,21 @@ create table if not exists `customers`
 create table if not exists `history`
 (
   id integer primary key autoincrement ,
-  name text not null ,
-  model text not null ,
+  product_id text not null ,
   quantity text not null ,
   price text not null ,
-  customer text not null ,
-  date text not null
+  date text not null,
+  id_user text not null,
+  id_card text not null
 );
 
 --створити таблицю card
-create table  if not exists `card`
+create table  if not exists `cards`
 ( id integer primary key autoincrement ,
 number text not null ,
 valid text not null ,
-svv text not null
+svv text not null,
+id_user text not null,
+id_card text not null
 
 );
