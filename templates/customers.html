@@ -1,9 +1,13 @@
 {% extends 'layout.html' %}
 {% block body %}
+
+<p> id="demo"></p>
 {% if session.logged_in and session.is_admin %}
+
 
     <h2>Customers</h2>
     <table class="entries">
+
         <tr>
             <th>Name</th>
             <th>Model</th>
@@ -19,14 +23,14 @@
         {% if session.logged_in and session.is_admin  %}
 
             <tr>
-                <th>{{ z.name }}</th>
-                <th>{{ z.model  }}</th>
-                <th>{{ z.price }}</th>
-                <th>{{ z.quantity }}</th>
-                <th>{{ z.customer }}</th>
-                <th>{{ z.custom_login }}</th>
-                <th>{{ z.custom_name }}</th>
-                <th>{{ z.date }}</th>
+                <td>{{ z.name }}</td>
+                <td>{{ z.model  }}</td>
+                <td>{{ z.price }}</td>
+                <td>{{ z.quantity }}</td>
+                <td>{{ z.customer }}</td>
+                <td>{{ z.custom_login }}</td>
+                <td>{{ z.custom_name }}</td>
+                <td>{{ z.date }}</td>
 
             </tr>
         {% endif %}
