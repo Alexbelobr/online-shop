@@ -12,10 +12,10 @@
 
 <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-    <a href="#">Catalog</a>
-    <a href="#">Basket</a>
-    <a href="#">Shopping history</a>
-    <a href="#">Contact</a>
+    <a href="{{ url_for('list_product') }}">Catalog</a>
+    <a href="{{ url_for('basket_user') }}">Basket</a>
+    <a href="{{ url_for('del_bask') }}">Shopping history</a>
+    <a href="{{ url_for('customers') }}">Contact</a>
 
 </div>
 

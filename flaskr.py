@@ -289,6 +289,28 @@ def del_bask():
     return render_template('add_bank.html', history=history)
 
 
+@app.route('/basket_user', methods=['GET'])
+def basket_user():
+    if not session.get('logged_in'):
+        abort(401)
+
+    db = get_db()
+    cur = db.execute('select p.name, p.model, p.price, b.quantity, (p.price * b.quantity) '
+                     'as cost '
+                     'from basket b, products p '
+                     'where b.productsId = p.id and b.userId=?', [session['userId']])
+
+    basket = cur.fetchall()
+    cur = db.execute('select sum (p.price * b.quantity) '
+                     'as sum from basket b, products p '
+                     'where p.id=b.productsId '
+                     'and b.userId=?', [session['userId']])
+    sum = (cur.fetchone()[0])
+    db.commit()
+
+    return render_template('basket_user.html', basket=basket, sum=sum)
+
+
 @app.route('/buy')
 def buy():
     if not session.get('logged_in'):
@@ -309,6 +331,7 @@ def buy():
         [session['userId']])
 
     sum = (cur.fetchone()[0])
+
 
     db.execute(
         'insert into customers('
