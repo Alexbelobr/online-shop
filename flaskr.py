@@ -311,6 +311,30 @@ def basket_user():
     return render_template('basket_user.html', basket=basket, sum=sum)
 
 
+
+@app.route('/shopping_history', methods=['GET'])
+def shopping_history():
+    if not session.get('logged_in'):
+        abort(401)
+
+    db = get_db()
+    cur = db.execute('select u.login_ as u_login, '
+                     'u.name as u_name, '                                           
+                     'h.date as date, '
+                     'p.name as p_name, '
+                     'p.model as p_model, '
+                     'p.price as price, '
+                     'h.quantity as quantity '
+                     'from users u, history h, products p '
+                     'where p.id = h.productId '
+                     'and u.id = h.userId '
+                     'and u.id = ?', [session['userId']])
+
+    shopping_h = cur.fetchall()
+
+    return render_template('shopping_history.html', shopping_h=shopping_h)
+
+
 @app.route('/buy')
 def buy():
     if not session.get('logged_in'):
@@ -331,7 +355,6 @@ def buy():
         [session['userId']])
 
     sum = (cur.fetchone()[0])
-
 
     db.execute(
         'insert into customers('
@@ -440,7 +463,7 @@ def login():
              request.form['password']])
         user = cur.fetchone()
 
-        if user == None:
+        if user is None:
             error = 'Invalid username or password!'
         else:
             session['logged_in'] = True
