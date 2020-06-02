@@ -2,6 +2,7 @@ import os
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, \
     abort, render_template, flash
+from datetime import datetime
 
 # конфигурация
 # DATABASE = 'data_.db'
@@ -252,19 +253,26 @@ def del_bask():
                        [request.form['number'], request.form['valid'],
                         request.form['svv'], session['userId']])
 
+        now = datetime.now()
+
         db.execute(
             'insert into history('
-            'productId, quantity, price, date, userId, cardId) '
+            'productId, quantity, price, date, userId, cardId, basketId) '
             'select '
             'b.productsId, '
             'b.quantity, '
             'p.price, '
-            'datetime(), '
+            '?, '
             'u.id, '
-            'c.id '
+            'c.id, '
+            'b.id '
             'from products p , cards c, basket b, users u '
-            'where p.id=b.productsId and u.id=b.userId  and c.userId=u.id and c.number=?'
-            'and u.id=?', [request.form['number'], session['userId']])
+            'where p.id=b.productsId '
+            'and u.id=b.userId  '
+            'and c.userId=u.id '
+            'and c.number=?'
+            'and u.id=?',
+            [now, request.form['number'], session['userId']])
 
         db.execute(
             'delete from basket '
@@ -318,8 +326,8 @@ def shopping_history():
         abort(401)
 
     db = get_db()
-    cur = db.execute('select u.login_ as u_login, '
-                     'u.name as u_name, '                                           
+
+    cur = db.execute('select '                                           
                      'h.date as date, '
                      'p.name as p_name, '
                      'p.model as p_model, '
@@ -328,11 +336,25 @@ def shopping_history():
                      'from users u, history h, products p '
                      'where p.id = h.productId '
                      'and u.id = h.userId '
-                     'and u.id = ?', [session['userId']])
+                     'and u.id = ? order by h.date desc ',
+                     [session['userId']])
 
     shopping_h = cur.fetchall()
 
-    return render_template('shopping_history.html', shopping_h=shopping_h)
+    history = {}
+
+    for h in shopping_h:
+        date = datetime.fromisoformat(h['date']).strftime("%Y-%m-%d %H:%M")
+        if date in history:
+            history[date].append(h)
+        else:
+            history[date] = []
+            history[date].append(h)
+
+
+    print(history)
+
+    return render_template('shopping_history.html', shopping_h=history)
 
 
 @app.route('/buy')

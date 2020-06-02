@@ -75,7 +75,9 @@ create table if not exists `history`
   price text not null ,
   date text not null,
   id_user text not null,
-  id_card text not null
+  id_card text not null,
+  basketId text not null
+
 );
 
 --створити таблицю card

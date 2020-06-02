@@ -3,39 +3,40 @@
 
 
     <p id="demo"></p>
-<!--створити ще одну таблицю для кошика, дані брати з basket_entries -->
-{% if session.logged_in and session.userId %}
-    <h2>Shopping history</h2>
-    <table class="entries">
+    <!--створити ще одну таблицю для кошика, дані брати з basket_entries -->
+    {% if session.logged_in and session.userId %}
+        <h2>Shopping history</h2>
 
-        <tr>
-            <th>User login</th>
-            <th>User name</th>
-            <th>Date</th>
-            <th>Product name</th>
-            <th>Product model</th>
-            <th>Price</th>
-            <th>Quantity</th>
+        {% for date in shopping_h %}
+            <table class="entries">
+                <tr>
+                    <td style="background-color: #cccccc; border: 0">Date</td>
+                    <td colspan="3" style="background-color: #cccccc;border: 0">{{ date }}</td>
+                </tr>
+            </table>
 
-        </tr>
+            <table class="entries">
+                <tr>
+                    <th style="background-color: #377ba8">Product name</th>
+                    <th style="background-color: #377ba8">Product model</th>
+                    <th style="background-color: #377ba8">Price</th>
+                    <th style="background-color: #377ba8">Quantity</th>
+                </tr>
 
-    {% for hist in shopping_h %}
-        {% if session.logged_in and session.userId %}
-            <tr>
-                <td>{{ hist.u_login }}</td>
-                <td>{{ hist.u_name }}</td>
-                <td>{{ hist.date }}</td>
-                <td>{{ hist.p_name }}</td>
-                <td>{{ hist.p_model }}</td>
-                <td>{{ hist.price }}</td>
-                <td>{{ hist.quantity }}</td>
+                {% for row in shopping_h[date] %}
+                    <tr>
+                        <td>{{ row.p_name }}</td>
+                        <td>{{ row.p_model }}</td>
+                        <td>{{ row.price }}</td>
+                        <td>{{ row.quantity }}</td>
+                    </tr>
+                {% endfor %}
 
-            </tr>
-        {% endif %}
-    {% endfor %}
+            </table>
+            <p>&nbsp;</p>
+        {% endfor %}
 
-    </table>
 
-{% endif %}
+    {% endif %}
 
 {% endblock %}
