@@ -1,5 +1,8 @@
 import os
 import sqlite3
+import re
+from typing import Optional, Match
+
 from flask import Flask, request, session, g, redirect, url_for, \
     abort, render_template, flash
 from datetime import datetime
@@ -89,17 +92,22 @@ def close_db(error):
 и возвращает сформированное отображение:"""
 
 
-@app.route('/')
+@app.route('/', methods=["GET"])
 def list_product():
-    db = get_db()
-    cur = db.execute(
-        'select * from products '
-        'order by id desc')
-    products = cur.fetchall()
+    products = get_products()
 
     if not session.get('logged_in'):
         return render_template('list_product.html', products=products, basket=[])
-    cur = db.execute(
+
+    #    for row in basket:
+ #       for x in range(len(row)):
+  #          print(row[x])
+
+    return render_template('list_product.html', products=products, basket=get_basket(), error=None)
+
+
+def get_basket():
+    return get_db().execute(
         'select '
         'p.name as name, '
         'p.model as model, '
@@ -110,25 +118,47 @@ def list_product():
         'from basket b, products p '
         'where b.productsId = p.id '
         'and b.userId=?',
-        [session['userId']])
-    basket = cur.fetchall()
-
-    for row in basket:
-        for x in range(len(row)):
-            print(row[x])
-
-    return render_template('list_product.html', products=products, basket=basket)
+        [session['userId']]).fetchall()
 
 
-"""Это представление позволяет пользователю, если он осуществил вход, добавлять
-новые записи. Оно реагирует только на запросы типа POST, а фактическая форма
-отображается на странице list_product."""
+def get_products():
+    return get_db().execute(
+        'select * from products '
+        'order by id desc').fetchall()
 
 
-@app.route('/add_product', methods=['POST'])
-def add_product():
+@app.route('/', methods=["POST"])
+def add_super_product():
     if not session.get('logged_in'):
         abort(401)
+
+    """name = request.form['name']
+    model = request.form['model']
+    if name == ' ' or model == ' ':
+        error = 'the field must be filled!'
+        return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)"""
+
+    price = request.form['price']
+    result = re.match(r"^\d+\.\d{2}$", price)
+    quantity = request.form['quantity']
+    result1 = re.match(r"\d+$", quantity)
+    model = request.form['model']
+    result2 = re.match(r"^\w+$", model)
+    name = request.form['name']
+    result3 = re.match(r"^\w+$", name)
+
+    if result:
+        print("ok")
+    else:
+        print("error")
+
+    error = None
+
+    if not result or not result1 or not result2 or not result3:
+        error = "Please enter valid data"
+
+        return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
+
     db = get_db()
     db.execute(
         'insert into products(name, model, price, quantity)'
@@ -137,9 +167,36 @@ def add_product():
          request.form['price'], request.form['quantity']])
 
     db.commit()
-    flash('New entry was successfully posted')
-    return redirect(url_for('list_product'))
 
+    return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
+
+
+"""Это представление позволяет пользователю, если он осуществил вход, добавлять
+новые записи. Оно реагирует только на запросы типа POST, а фактическая форма
+отображается на странице list_product."""
+
+
+"""@app.route('/add_product', methods=['POST'])
+def add_product():
+    if not session.get('logged_in'):
+        abort(401)
+
+    db = get_db()
+    db.execute(
+        'insert into products(name, model, price, quantity)'
+        ' values (?, ?, ?, ?)',
+        [request.form['name'], request.form['model'],
+         request.form['price'], request.form['quantity']])
+    price = request.form['price']
+    result = re.fullmatch(r"^\d+\.\d{2}$", price)
+
+    if not result:
+        return redirect(url_for('list_product', e="Please enter valid data"))
+    else:
+        db.commit()
+        flash('New entry was successfully posted')
+        return redirect(url_for('list_product'))
+"""
 
 @app.route('/delete-product', methods=['POST'])
 def delete_product():

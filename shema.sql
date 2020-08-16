@@ -8,8 +8,8 @@ create table if not exists `products`
    id integer primary key autoincrement,
    name text not null ,
    model text not null ,
-   price text not null ,
-   quantity integer
+   price integer not null ,
+   quantity integer not null
 );
 
 -- створити таблицю для реєстрації
@@ -45,9 +45,9 @@ create table if not exists  `distributors`
   id integer primary key autoincrement,
   name text not null,
   model text not null ,
-  price text not null ,
-  quantity integer,
-  sum text not null ,
+  price integer not null ,
+  quantity integer not null ,
+  sum integer not null ,
   company text not null ,
   date text not null
 );
@@ -59,8 +59,8 @@ create table if not exists `customers`
   id integer primary key autoincrement ,
   name text not null ,
   model text not null ,
-  price text not null ,
-  quantity text not null ,
+  price integer not null ,
+  quantity integer not null ,
   customer text not null ,
   date text not null
 );
