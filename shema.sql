@@ -10,6 +10,7 @@ create table if not exists `products`
    model text not null ,
    price integer not null ,
    quantity integer not null
+
 );
 
 -- створити таблицю для реєстрації
@@ -82,11 +83,11 @@ create table if not exists `history`
 
 --створити таблицю card
 create table  if not exists `cards`
-( id integer primary key autoincrement ,
-number text not null ,
-valid text not null ,
-svv text not null,
-id_user text not null,
-id_card text not null
-
+(
+  id      integer primary key autoincrement,
+  number  text not null,
+  valid   text not null,
+  svv     text not null,
+  id_user text not null,
+  id_car  text not null
 );

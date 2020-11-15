@@ -146,6 +146,8 @@ def add_super_product():
     result2 = re.match(r"^\w+$", model)
     name = request.form['name']
     result3 = re.match(r"^\w+$", name)
+    img = request.form['img']
+    result4 = re.match(r"^\w+$", img)
 
     if result:
         print("ok")
@@ -154,17 +156,17 @@ def add_super_product():
 
     error = None
 
-    if not result or not result1 or not result2 or not result3:
+    if not result or not result1 or not result2 or not result3 or not result4:
         error = "Please enter valid data"
 
         return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
 
     db = get_db()
     db.execute(
-        'insert into products(name, model, price, quantity)'
-        ' values (?, ?, ?, ?)',
+        'insert into products(name, model, price, quantity, img)'
+        ' values (?, ?, ?, ?, ?)',
         [request.form['name'], request.form['model'],
-         request.form['price'], request.form['quantity']])
+         request.form['price'], request.form['quantity'], request.form['img']])
 
     db.commit()
 
@@ -469,6 +471,14 @@ def customers():
     customers = cur.fetchall()
 
     return render_template('customers.html', customers=customers)
+
+
+@app.route('/add_bank', methods=['GET'])
+def add_bank():
+    if not session.get('logged_in'):
+        abort(401)
+
+    return render_template('add_bank.html', add_bank=add_bank)
 
 
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
