@@ -19,13 +19,13 @@
                     alert("Please write valid value xxx")
                 }
 
-                return true//priceResult && qtyResult;
+                return true  //priceResult && qtyResult;
             }
             </script>
 
 {% if session.logged_in and session.is_admin %}
 
-    <form action="{{ url_for('list_product') }}" method=post class=add-entry onsubmit="return validate(this)">
+    <form action="{{ url_for('list_product') }}" method=post class=add-entry enctype='multipart/form-data' onsubmit="return validate(this)">
         <dl>
             <dt>Name:
             <dd><input type=text size=35 name=name>
@@ -36,7 +36,8 @@
             <dt>Quantity:
             <dd><input type="text" size="25" id="quantity" name="quantity" min="1" max="1000" >
             <dt>Image:
-            <dd><input type="text" size="35" id="img" name="img">
+            <dd><input type="file" size="35" id="img" name="img">
+
             <dd><input type=submit value="Add Product">
 
         </dl>
@@ -73,7 +74,7 @@
             <td>{{ product.model }}</td>
             <td>{{ product.price }}</td>
             <td>{{ product.quantity }}</td>
-            <td>{{ product.img }}</td>
+            <td><img src="img/{{ product.img }}"/></td>
             <td>
                 {% if session.logged_in and session.userId %}
                 <form action="{{ url_for('add_basket')}}" method="post">

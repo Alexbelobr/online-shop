@@ -2,10 +2,18 @@ import os
 import sqlite3
 import re
 from typing import Optional, Match
+import random
+import string
 
 from flask import Flask, request, session, g, redirect, url_for, \
-    abort, render_template, flash
+    abort, render_template, flash, send_from_directory
+from werkzeug.utils import secure_filename
 from datetime import datetime
+
+
+UPLOAD_FOLDER = '\\Progects\\flaskr_n\\img'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
 
 # конфигурация
 # DATABASE = 'data_.db'
@@ -21,15 +29,15 @@ from datetime import datetime
 app = Flask(__name__)
 # wsgi_app = app.wsgi_app
 app.config.from_object(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Загружаем конфиг по умолчанию и переопределяем в конфигурации часть
 # значений через переменную окружения
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'data_.db'),
     DEBUG=True,
-    SECRET_KEY='development key'
+    SECRET_KEY='development key'))
 
-))
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 # Объект Config работает подобно словарю, поэтому мы можем обновлять его с помощью новых значений.
@@ -92,6 +100,29 @@ def close_db(error):
 и возвращает сформированное отображение:"""
 
 
+
+"""
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No select file')
+            return redirect(request.url)
+            if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('upload_file', filename=filename))
+    return render_template('list_product.html', products=get_products(), basket=get_basket(), error=None) 
+"""
+
+
 @app.route('/', methods=["GET"])
 def list_product():
     products = get_products()
@@ -99,9 +130,9 @@ def list_product():
     if not session.get('logged_in'):
         return render_template('list_product.html', products=products, basket=[])
 
-    #    for row in basket:
- #       for x in range(len(row)):
-  #          print(row[x])
+    #for row in basket:
+        #for x in range(len(row)):
+        #print(row[x])
 
     return render_template('list_product.html', products=products, basket=get_basket(), error=None)
 
@@ -127,50 +158,104 @@ def get_products():
         'order by id desc').fetchall()
 
 
+def allowed_file(filename):
+
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def get_random_alphanumeric_str(length):
+    leters_digits = string.ascii_letters + string.digits
+    result_str = ''.join((random.choice(leters_digits) for i in range(length)))
+
+
+    print(result_str)
+    return result_str
+
+"""def gen_file_name(filename):
+
+    ""
+    If file was exist already, rename it and return a new name
+    ""
+
+    i = 1
+    while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+        name, extension = os.path.splitext(filename)
+        filename = '%s_%s%s' % (name, str(i), extension)
+        i += 1
+        print(filename)
+
+        return filename """
+
+
+
 @app.route('/', methods=["POST"])
 def add_super_product():
     if not session.get('logged_in'):
         abort(401)
 
-    """name = request.form['name']
-    model = request.form['model']
-    if name == ' ' or model == ' ':
-        error = 'the field must be filled!'
-        return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)"""
+    if request.method == 'POST':
+        filename = None
 
-    price = request.form['price']
-    result = re.match(r"^\d+\.\d{2}$", price)
-    quantity = request.form['quantity']
-    result1 = re.match(r"\d+$", quantity)
-    model = request.form['model']
-    result2 = re.match(r"^\w+$", model)
-    name = request.form['name']
-    result3 = re.match(r"^\w+$", name)
-    img = request.form['img']
-    result4 = re.match(r"^\w+$", img)
+        # check if the post request has the file part
+        if 'img' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
 
-    if result:
-        print("ok")
-    else:
-        print("error")
+        file = request.files['img']
+        # if user does not select file, browser also
+        # submit an empty part without filename
 
-    error = None
 
-    if not result or not result1 or not result2 or not result3 or not result4:
-        error = "Please enter valid data"
+        if file.filename == '':
+            flash('No select file')
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+
+            filename = get_random_alphanumeric_str(5) + '_' + secure_filename(file.filename)
+
+            """filename = filename
+            i = 1
+            while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+                name, extension = os.path.splitext(filename)
+                filename = '%s_%s%s' % (name, str(i), extension)
+                i += 1
+            return filename"""
+
+            file.save = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        price = request.form['price']
+        result = re.match(r"^\d+\.\d{2}$", price)
+        quantity = request.form['quantity']
+        result1 = re.match(r"\d+$", quantity)
+        model = request.form['model']
+        result2 = re.match(r"^\w+$", model)
+        name = request.form['name']
+        result3 = re.match(r"^\w+$", name)
+
+        if result:
+            print("ok")
+        else:
+            print("error")
+
+        error = None
+
+        if not result or not result1 or not result2 or not result3:
+            error = "Please enter valid data"
+
+            return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
+
+        db = get_db()
+
+        db.execute(
+            'insert into products(name, model, price, quantity, img)'
+            ' values (?, ?, ?, ?, ?)',
+            [name, model, price, quantity, filename])
+
+        db.commit()
 
         return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
-
-    db = get_db()
-    db.execute(
-        'insert into products(name, model, price, quantity, img)'
-        ' values (?, ?, ?, ?, ?)',
-        [request.form['name'], request.form['model'],
-         request.form['price'], request.form['quantity'], request.form['img']])
-
-    db.commit()
-
-    return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
 
 
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
@@ -199,6 +284,11 @@ def add_product():
         flash('New entry was successfully posted')
         return redirect(url_for('list_product'))
 """
+
+@app.route('/img/<path:path>')
+def get_image(path):
+    return send_from_directory('img', path)
+
 
 @app.route('/delete-product', methods=['POST'])
 def delete_product():
