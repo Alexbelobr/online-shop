@@ -189,7 +189,8 @@ def get_random_alphanumeric_str(length):
 
 
 
-@app.route('/', methods=["POST"])
+@app.route('/', methods=["GET", "POST"])
+
 def add_super_product():
     if not session.get('logged_in'):
         abort(401)
@@ -223,7 +224,7 @@ def add_super_product():
                 i += 1
             return filename"""
 
-            file.save = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         price = request.form['price']
         result = re.match(r"^\d+\.\d{2}$", price)
@@ -285,9 +286,11 @@ def add_product():
         return redirect(url_for('list_product'))
 """
 
+
 @app.route('/img/<path:path>')
 def get_image(path):
     return send_from_directory('img', path)
+
 
 
 @app.route('/delete-product', methods=['POST'])
