@@ -57,27 +57,26 @@ create table if not exists  `distributors`
 
 create table if not exists `customers`
 (
-  id integer primary key autoincrement ,
-  name text not null ,
-  model text not null ,
-  price integer not null ,
+  id       integer primary key autoincrement ,
+  name    text not null ,
+  model   text not null ,
+  price   integer not null ,
   quantity integer not null ,
   customer text not null ,
-  date text not null
+  date     text not null
 );
 
 --створити таблицю історію попкупок для покупців
 
 create table if not exists `history`
 (
-  id integer primary key autoincrement ,
+  id         integer primary key autoincrement ,
   product_id text not null ,
-  quantity text not null ,
-  price text not null ,
-  date text not null,
-  id_user text not null,
-  id_card text not null,
-  basketId text not null
+  quantity   text not null ,
+  price      text not null ,
+  date       text not null,
+  id_user    text not null,
+  id_card    text not null
 
 );
 
@@ -90,4 +89,12 @@ create table  if not exists `cards`
   svv     text not null,
   id_user text not null,
   id_car  text not null
+);
+
+--створити таблицю image
+create table if not exists `image`
+(
+  id          integer primary key autoincrement,
+  product_id  text not null ,
+  image       text not null
 );

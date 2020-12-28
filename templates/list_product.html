@@ -25,7 +25,8 @@
 
 {% if session.logged_in and session.is_admin %}
 
-    <form action="{{ url_for('list_product') }}" method=post class=add-entry enctype='multipart/form-data' onsubmit="return validate(this)">
+    <form action="{{ url_for('list_product') }}" method=post class=add-entry
+          enctype='multipart/form-data' onsubmit="return validate(this)">
         <dl>
             <dt>Name:
             <dd><input type=text size=35 name=name>
