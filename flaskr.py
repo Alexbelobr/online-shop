@@ -67,9 +67,9 @@ def init_db(db):
         db.commit()
     print('Initialized the database.')
 
-    """ Метод open_resource() объекта приложения является удобной функцией-помощником, 
-которая откроет ресурс, обеспечиваемый приложением. Эта функция открывает файл из 
-места расположения ресурсов (в нашем случае папка flaskr_n), и позволяет вам из него читать """
+    """ Метод open_resource() объекта откроет ресурс, обеспечиваемый приложением. 
+    Эта функция открывает файл из места расположения ресурсов 
+    (в нашем случае папка flaskr_n), и позволяет вам из него читать """
 
 
 # Всё, что вам надо знать на этот момент - это то,
@@ -172,22 +172,6 @@ def get_random_alphanumeric_str(length):
     print(result_str)
     return result_str
 
-"""def gen_file_name(filename):
-
-    ""
-    If file was exist already, rename it and return a new name
-    ""
-
-    i = 1
-    while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-        name, extension = os.path.splitext(filename)
-        filename = '%s_%s%s' % (name, str(i), extension)
-        i += 1
-        print(filename)
-
-        return filename """
-
-
 
 @app.route('/', methods=["GET", "POST"])
 
@@ -207,7 +191,6 @@ def add_super_product():
         # if user does not select file, browser also
         # submit an empty part without filename
 
-
         if file.filename == '':
             flash('No select file')
             return redirect(request.url)
@@ -215,14 +198,6 @@ def add_super_product():
         if file and allowed_file(file.filename):
 
             filename = get_random_alphanumeric_str(5) + '_' + secure_filename(file.filename)
-
-            """filename = filename
-            i = 1
-            while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-                name, extension = os.path.splitext(filename)
-                filename = '%s_%s%s' % (name, str(i), extension)
-                i += 1
-            return filename"""
 
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
@@ -249,11 +224,21 @@ def add_super_product():
 
         db = get_db()
 
-        db.execute(
-            'insert into products(name, model, price, quantity, img)'
-            ' values (?, ?, ?, ?, ?)',
-            [name, model, price, quantity, filename])
+        cur = db.cursor()  # створюємо змінну cursor і присвоюємо значення функції db.cursor() для курсора
+        cur.execute(                                             #
+            'insert into products(name, model, price, quantity)'
+            ' values (?, ?, ?, ?)',
+            [name, model, price, quantity])
 
+        db.commit()
+
+        qqq = cur.lastrowid  # lastrowid - атрибут обєкта cursor, щоб повернути останній згенерований ідентифікатор id.
+                                        # створюємо змінну product_id і присвоюємо значення cursor.lastrowid
+        print(qqq)
+
+        db = get_db()
+
+        db.execute('insert into image(product_id, image) values (?, ?)', [qqq, filename])
         db.commit()
 
         return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
@@ -285,6 +270,19 @@ def add_product():
         flash('New entry was successfully posted')
         return redirect(url_for('list_product'))
 """
+
+
+def save_image(rv, image):
+
+
+
+    sql = '''insert into image(product_id, image) values (?, ?)'''
+    cur = rv.cursor()
+    cur.execute(sql, image)
+    rv.commit()
+
+    return cur.lastrowid
+
 
 
 @app.route('/img/<path:path>')
