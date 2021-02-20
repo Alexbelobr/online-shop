@@ -238,10 +238,12 @@ def add_super_product():
 
         db = get_db()
 
-        db.execute('insert into image(product_id, image) values (?, ?)', [qqq, filename])
+        db.execute(
+            'insert into image(product_id, image) '
+            'values (?, ?)', [qqq, filename])
         db.commit()
 
-        return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
+        return render_template('list_product.html', products=get_products(), basket=get_basket(), filename=filename, error=error)
 
 
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
@@ -272,23 +274,18 @@ def add_product():
 """
 
 
-def save_image(rv, image):
-
-
-
-    sql = '''insert into image(product_id, image) values (?, ?)'''
-    cur = rv.cursor()
-    cur.execute(sql, image)
-    rv.commit()
-
-    return cur.lastrowid
-
-
-
-@app.route('/img/<path:path>')
+@app.route("/img/<path:path>")
 def get_image(path):
-    return send_from_directory('img', path)
+    return send_from_directory('/img/', path)
 
+
+""""@app.route('/get-image/<image_name>')
+def get_image(image_name):
+    try:
+
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename=image_name, as_attachment=True)
+    except FileNotFoundError:
+        abort(404) """
 
 
 @app.route('/delete-product', methods=['POST'])
@@ -299,6 +296,8 @@ def delete_product():
     db.execute(
         'delete from products '
         'where id=?', [request.form['id']])
+    db.execute('delete from image'
+               ' where product_id=?', [request.form['id']])
     db.commit()
     return redirect(url_for('list_product'))
 

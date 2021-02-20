@@ -75,7 +75,7 @@
             <td>{{ product.model }}</td>
             <td>{{ product.price }}</td>
             <td>{{ product.quantity }}</td>
-            <td><img src="img/{{ product.img }}"/></td>
+            <td><img src="/img/">{{ product.img }}</td>
             <td>
                 {% if session.logged_in and session.userId %}
                 <form action="{{ url_for('add_basket')}}" method="post">
