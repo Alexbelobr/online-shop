@@ -96,5 +96,5 @@ create table if not exists `image`
 (
   id          integer primary key autoincrement,
   product_id  text not null ,
-  image       text not null
+  img       text not null
 );

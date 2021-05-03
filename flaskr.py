@@ -11,7 +11,9 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 
 
-UPLOAD_FOLDER = '\\Progects\\flaskr_n\\img'
+
+
+UPLOAD_FOLDER = '\\Progects\\flaskr_n\\img\\'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 
@@ -27,9 +29,10 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 # создаём наше маленькое приложение :)
 
 app = Flask(__name__)
-# wsgi_app = app.wsgi_app
+#wsgi_app = app.wsgi_app
 app.config.from_object(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 # Загружаем конфиг по умолчанию и переопределяем в конфигурации часть
 # значений через переменную окружения
@@ -39,6 +42,7 @@ app.config.update(dict(
     SECRET_KEY='development key'))
 
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+
 
 # Объект Config работает подобно словарю, поэтому мы можем обновлять его с помощью новых значений.
 
@@ -78,7 +82,8 @@ def init_db(db):
 
 def get_db():
     """Если ещё нет соединения с базой данных, открыть новое - для
-    текущего контекста приложения"""
+    текущего контекста приложения
+    :rtype: object"""
     if not hasattr(g, 'sqlite_db'):
         g.sqlite_db = connect_db()
         init_db(g.sqlite_db)
@@ -100,29 +105,6 @@ def close_db(error):
 и возвращает сформированное отображение:"""
 
 
-
-"""
-@app.route('/', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if file.filename == '':
-            flash('No select file')
-            return redirect(request.url)
-            if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('upload_file', filename=filename))
-    return render_template('list_product.html', products=get_products(), basket=get_basket(), error=None) 
-"""
-
-
 @app.route('/', methods=["GET"])
 def list_product():
     products = get_products()
@@ -130,12 +112,29 @@ def list_product():
     if not session.get('logged_in'):
         return render_template('list_product.html', products=products, basket=[])
 
-    #for row in basket:
-        #for x in range(len(row)):
-        #print(row[x])
+    product_list = []
 
-    return render_template('list_product.html', products=products, basket=get_basket(), error=None)
+    for i in products:
+        print(i['id'])
+        im = i['id']
+        db = get_db()
+        existingImage = db.execute(
+            'select img '
+            'from image '
+            'where product_id=? ', [im])
 
+        one_product = {}
+        one_product['id'] = i['id']
+        one_product['name'] = i['name']
+        one_product['model'] = i['model']
+        one_product['price'] = i['price']
+        one_product['quantity'] = i['quantity']
+        one_product['img'] = existingImage.fetchone()['img']
+
+        product_list.append(one_product)
+
+
+    return render_template('list_product.html', products=product_list, basket=get_basket(), error=None)
 
 def get_basket():
     return get_db().execute(
@@ -152,7 +151,7 @@ def get_basket():
         [session['userId']]).fetchall()
 
 
-def get_products():
+def get_products(): #-> object:
     return get_db().execute(
         'select * from products '
         'order by id desc').fetchall()
@@ -174,7 +173,6 @@ def get_random_alphanumeric_str(length):
 
 
 @app.route('/', methods=["GET", "POST"])
-
 def add_super_product():
     if not session.get('logged_in'):
         abort(401)
@@ -198,7 +196,6 @@ def add_super_product():
         if file and allowed_file(file.filename):
 
             filename = get_random_alphanumeric_str(5) + '_' + secure_filename(file.filename)
-
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         price = request.form['price']
@@ -220,31 +217,33 @@ def add_super_product():
         if not result or not result1 or not result2 or not result3:
             error = "Please enter valid data"
 
-            return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
+            # return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
 
         db = get_db()
 
         cur = db.cursor()  # створюємо змінну cursor і присвоюємо значення функції db.cursor() для курсора
-        cur.execute(                                             #
+        cur.execute(
             'insert into products(name, model, price, quantity)'
             ' values (?, ?, ?, ?)',
             [name, model, price, quantity])
 
-        db.commit()
+
+
+        # db.commit()
 
         qqq = cur.lastrowid  # lastrowid - атрибут обєкта cursor, щоб повернути останній згенерований ідентифікатор id.
                                         # створюємо змінну product_id і присвоюємо значення cursor.lastrowid
         print(qqq)
 
         db = get_db()
-
-        db.execute(
-            'insert into image(product_id, image) '
+        cur = db.cursor()
+        cur.execute(
+            'insert into image(product_id, img)'
             'values (?, ?)', [qqq, filename])
         db.commit()
 
-        return render_template('list_product.html', products=get_products(), basket=get_basket(), filename=filename, error=error)
-
+    # return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
+    return redirect(url_for('list_product'))
 
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
 новые записи. Оно реагирует только на запросы типа POST, а фактическая форма
@@ -274,19 +273,16 @@ def add_product():
 """
 
 
-@app.route("/img/<path:path>")
-def get_image(path):
-    return send_from_directory('/img/', path)
+@app.route('/picture/<xyz>', methods=['GET'])
+def get_image(xyz):
 
+    filename = xyz
 
-""""@app.route('/get-image/<image_name>')
-def get_image(image_name):
     try:
-
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename=image_name, as_attachment=True)
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     except FileNotFoundError:
-        abort(404) """
-
+        abort(404)
+    return redirect(url_for('list_product'))
 
 @app.route('/delete-product', methods=['POST'])
 def delete_product():
@@ -296,8 +292,9 @@ def delete_product():
     db.execute(
         'delete from products '
         'where id=?', [request.form['id']])
-    db.execute('delete from image'
-               ' where product_id=?', [request.form['id']])
+    db.execute(
+        ' delete from image'
+        ' where product_id=?', [request.form['id']])
     db.commit()
     return redirect(url_for('list_product'))
 
