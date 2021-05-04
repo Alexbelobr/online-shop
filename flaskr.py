@@ -133,10 +133,35 @@ def list_product():
 
         product_list.append(one_product)
 
-
     return render_template('list_product.html', products=product_list, basket=get_basket(), error=None)
 
+""" def product_list():
+    products = get_products()
+    product_list=[]
+
+    for i in products:
+        print(i['id'])
+        im = i['id']
+        db = get_db()
+        existingImage = db.execute(
+            'select img '
+            'from image '
+            'where product_id=? ', [im])
+
+        one_product = {}
+        one_product['id'] = i['id']
+        one_product['name'] = i['name']
+        one_product['model'] = i['model']
+        one_product['price'] = i['price']
+        one_product['quantity'] = i['quantity']
+        one_product['img'] = existingImage.fetchone()['img']
+
+        product_list.append(one_product)
+"""
+
+
 def get_basket():
+
     return get_db().execute(
         'select '
         'p.name as name, '
@@ -175,6 +200,7 @@ def get_random_alphanumeric_str(length):
 @app.route('/', methods=["GET", "POST"])
 def add_super_product():
     if not session.get('logged_in'):
+
         abort(401)
 
     if request.method == 'POST':
@@ -182,8 +208,10 @@ def add_super_product():
 
         # check if the post request has the file part
         if 'img' not in request.files:
+
             flash('No file part')
-            return redirect(request.url)
+            #return redirect(request.url)
+            return render_template('list_product.html', products=get_products(), basket=get_basket(), error="No file part")
 
         file = request.files['img']
         # if user does not select file, browser also
@@ -191,7 +219,8 @@ def add_super_product():
 
         if file.filename == '':
             flash('No select file')
-            return redirect(request.url)
+            #return redirect(request.url)
+            return render_template('list_product.html', products=get_products(), basket=get_basket(), error="No select file")
 
         if file and allowed_file(file.filename):
 
@@ -215,9 +244,9 @@ def add_super_product():
         error = None
 
         if not result or not result1 or not result2 or not result3:
-            error = "Please enter valid data"
+            flash("Please enter valid data")
 
-            # return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
+            return render_template('list_product.html', products=get_products(), basket=get_basket(), error="Please enter valid data")
 
         db = get_db()
 
@@ -242,7 +271,7 @@ def add_super_product():
             'values (?, ?)', [qqq, filename])
         db.commit()
 
-    # return render_template('list_product.html', products=get_products(), basket=get_basket(), error=error)
+
     return redirect(url_for('list_product'))
 
 """Это представление позволяет пользователю, если он осуществил вход, добавлять
@@ -591,7 +620,7 @@ def add_user():
 
             if log is not None:
                 return render_template('add_user.html',
-                                       error='Invalid registration, a user with this log already exists!')
+                error='Invalid registration, a user with this log already exists!')
 
             flash('You where registered')
 
