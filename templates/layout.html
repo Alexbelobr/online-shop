@@ -37,10 +37,12 @@
 {% endif %}
 
 </div>
+<div>
+    {% for message in get_flashed_messages() %}
+    <div class=flash>{{ message }}</div>
+    {% endfor %}
+</div>
 {% block body %}
-{% for message in get_flashed_messages() %}
-<div class=flash>{{ message }}</div>
-{% endfor %}
 {% endblock %}
 </div>
 

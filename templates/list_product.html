@@ -7,17 +7,17 @@
                 let priceRegex = RegExp(/^\d+\.\d{2}$/);
                 let priceResult = priceRegex.test(price);
 
-                /*if (!priceResult) {
+                if (!priceResult) {
                     alert("Please write valid value x.xx")
-                }*/
+                }
 
                 let qty = form.quantity.value;
                 let qtyRegex = RegExp(/^\d+$/);
                 let qtyResult = qtyRegex.test(qty);
 
-                /*if (!qtyResult) {
+                if (!qtyResult) {
                     alert("Please write valid value xxx")
-                }*/
+                }
 
                 return true  //priceResult && qtyResult;
             }

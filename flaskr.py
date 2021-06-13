@@ -157,6 +157,7 @@ def list_product():
         one_product['img'] = existingImage.fetchone()['img']
 
         product_list.append(one_product)
+    return product_list
 """
 
 
@@ -313,11 +314,33 @@ def get_image(xyz):
         abort(404)
     return redirect(url_for('list_product'))
 
+"""@app.route('/deletefile')
+def delete_file():
+    filename = request.form['filename']
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    os.remove(file_path)"""
+
 @app.route('/delete-product', methods=['POST'])
 def delete_product():
     if not session.get('logged_in'):
         abort(401)
+
     db = get_db()
+    deletefile = db.execute('select img '
+                         'from image '
+                         'where product_id=?', [request.form['id']])
+    img = deletefile.fetchone()[0]
+    delfile = os.path.join(app.config['UPLOAD_FOLDER'], img)
+
+
+    if os.path.isfile(delfile):
+        os.remove(delfile)
+
+    else:
+        print("Error: %s file not found" % delfile)
+
+    #os.system('rm THE_FILE_TO_DELETE')
+
     db.execute(
         'delete from products '
         'where id=?', [request.form['id']])
@@ -328,57 +351,68 @@ def delete_product():
     return redirect(url_for('list_product'))
 
 
+"""@app.route('/delete-file' )
+def delete_file():
+    filename = request.form['filename']
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    os.remove(file_path)
+    return redirect(url_for('list_product'))
+    #print(" %s has been removed succssefuly " % filename)"""
+
+
+
+
 @app.route('/add_basket', methods=['POST'])
 def add_basket():
-    if not session.get('logged_in'):
-        return render_template('list_product.html', products=[], basket=[])
-    db = get_db()
-    cur = db.execute(
-        'select quantity '
-        'from products where id = ?',
-        [request.form['id']])
-    quantityInStock = int(cur.fetchone()[0])
-    print('quantiytInStock = ' + str(quantityInStock))
-    quantityToBuy = int(request.form['quantity'])
-    print('quantityToBuy = ' + str(quantityToBuy))
+     if not session.get('logged_in'):
+         return render_template('list_product.html', products=[], basket=[])
+     db = get_db()
+     cur = db.execute(
+         'select quantity '
+         'from products where id = ?',
+         [request.form['id']])
+     quantityInStock = int(cur.fetchone()[0])
+     print('quantiytInStock = ' + str(quantityInStock))
+     quantityToBuy = int(request.form['quantity'])
+     print('quantityToBuy = ' + str(quantityToBuy))
 
-    if quantityInStock < quantityToBuy:
-        flash('There are not enough goods stock!')
-        return redirect(url_for('list_product'))
+     if quantityInStock < quantityToBuy:
+         flash('There are not enough goods stock!')
+         return redirect(url_for('list_product'))
 
-    quantityInStock = quantityInStock - quantityToBuy
+     quantityInStock = quantityInStock - quantityToBuy
 
-    print('quantityInStock = ' + str(quantityInStock))
+     print('quantityInStock = ' + str(quantityInStock))
 
-    db.execute(
-        'update products '
-        'set quantity = ? '
-        'where id = ?',
-        [quantityInStock, request.form['id']])
+     db.execute(
+         'update products '
+         'set quantity = ? '
+         'where id = ?',
+         [quantityInStock, request.form['id']])
 
-    existingProduct = db.execute(
-        'select id '
-        'from basket '
-        'where userId = ? and productsId = ?',
-        [session['userId'], request.form['id']])
+     existingProduct = db.execute(
+         'select id '
+         'from basket '
+         'where userId = ? and productsId = ?',
+         [session['userId'], request.form['id']])
 
-    bask = existingProduct.fetchone()
+     bask = existingProduct.fetchone()
 
-    if bask:
-        db.execute(
-            'update basket '
-            'set quantity = quantity + ? '
-            'where id = ? ', [quantityToBuy, bask['id']])
-    else:
-        db.execute(
-            'insert into basket ('
-            'productsId, quantity, userId) '
-            'values (?, ?, ?)',
-            [request.form['id'], request.form['quantity'],
-             session['userId']])
+     if bask:
+         db.execute(
+             'update basket '
+             'set quantity = quantity + ? '
+             'where id = ? ', [quantityToBuy, bask['id']])
+     else:
+         db.execute(
+             'insert into basket ('
+             'productsId, quantity, userId) '
+             'values (?, ?, ?)',
+             [request.form['id'], request.form['quantity'],
+              session['userId']])
 
-    db.commit()
-    return redirect(url_for('list_product'))
+     db.commit()
+     return redirect(url_for('list_product'))
 
 
 @app.route('/delete_basket', methods=['POST'])
@@ -387,20 +421,20 @@ def delete_basket():
         return render_template('list_product.html', basket=[], products=[])
     db = get_db()
     cur = db.execute(
-        'select productsId, quantity '
-        'from basket where id=?',
-        [request.form['id']])
+     'select productsId, quantity '
+     'from basket where id=?',
+     [request.form['id']])
     row = cur.fetchone()
     productsId = int(row[0])
     returnQty = int(row[1])
 
     db.execute(
-        'delete from basket '
-        'where id = ?', [request.form['id']])
+     'delete from basket '
+     'where id = ?', [request.form['id']])
     db.execute(
-        'update products set quantity = quantity + ? '
-        'where id = ?',
-        [returnQty, productsId])
+     'update products set quantity = quantity + ? '
+     'where id = ?',
+     [returnQty, productsId])
 
     db.commit()
     return redirect(url_for('list_product'))
@@ -416,58 +450,58 @@ def del_bask():
 
     if request.form:
 
-        historCard = db.execute('select id '
-                                'from cards '
-                                'where number = ? and userId = ?',
-                                [request.form['number'], session['userId']])
-        card = historCard.fetchone()
+         historCard = db.execute('select id '
+                             'from cards '
+                             'where number = ? and userId = ?',
+                             [request.form['number'], session['userId']])
+    card = historCard.fetchone()
 
-        if not card:
-            db.execute('insert into cards(number, valid , svv, userId )'
-                       ' VALUES (?, ?, ?, ? )',
-                       [request.form['number'], request.form['valid'],
-                        request.form['svv'], session['userId']])
+    if not card:
+        db.execute('insert into cards(number, valid , svv, userId )'
+                    ' VALUES (?, ?, ?, ? )',
+                    [request.form['number'], request.form['valid'],
+                     request.form['svv'], session['userId']])
 
         now = datetime.now()
 
         db.execute(
-            'insert into history('
-            'productId, quantity, price, date, userId, cardId, basketId) '
-            'select '
-            'b.productsId, '
-            'b.quantity, '
-            'p.price, '
-            '?, '
-            'u.id, '
-            'c.id, '
-            'b.id '
-            'from products p , cards c, basket b, users u '
-            'where p.id=b.productsId '
-            'and u.id=b.userId  '
-            'and c.userId=u.id '
-            'and c.number=?'
-            'and u.id=?',
-            [now, request.form['number'], session['userId']])
+         'insert into history('
+         'productId, quantity, price, date, userId, cardId, basketId) '
+         'select '
+         'b.productsId, '
+         'b.quantity, '
+         'p.price, '
+         '?, '
+         'u.id, '
+         'c.id, '
+         'b.id '
+         'from products p , cards c, basket b, users u '
+         'where p.id=b.productsId '
+         'and u.id=b.userId  '
+         'and c.userId=u.id '
+         'and c.number=?'
+         'and u.id=?',
+         [now, request.form['number'], session['userId']])
 
         db.execute(
-            'delete from basket '
-            'where userId=?', [session['userId']])
+         'delete from basket '
+         'where userId=?', [session['userId']])
 
         db.commit()
 
         cur = get_db().execute(
-            'select p.name as name, '
-            'p.model as model, '
-            'h.quantity as quantity, '
-            'p.price as price,'
-            'u.name as customer, '
-            'h.date as date '
-            'from  products p, users u, history h '
-            'where h.userId = ? '
-            'and h.productId = p.id '
-            'and u.id = h.userId', [session['userId']])
+         'select p.name as name, '
+         'p.model as model, '
+         'h.quantity as quantity, '
+         'p.price as price,'
+         'u.name as customer, '
+         'h.date as date '
+         'from  products p, users u, history h '
+         'where h.userId = ? '
+         'and h.productId = p.id '
+         'and u.id = h.userId', [session['userId']])
 
-        history = cur.fetchall()
+    history = cur.fetchall()
 
     return render_template('add_bank.html', history=history)
 
@@ -479,15 +513,15 @@ def basket_user():
 
     db = get_db()
     cur = db.execute('select p.name, p.model, p.price, b.quantity, (p.price * b.quantity) '
-                     'as cost '
-                     'from basket b, products p '
-                     'where b.productsId = p.id and b.userId=?', [session['userId']])
+                  'as cost '
+                  'from basket b, products p '
+                  'where b.productsId = p.id and b.userId=?', [session['userId']])
 
     basket = cur.fetchall()
     cur = db.execute('select sum (p.price * b.quantity) '
-                     'as sum from basket b, products p '
-                     'where p.id=b.productsId '
-                     'and b.userId=?', [session['userId']])
+                  'as sum from basket b, products p '
+                  'where p.id=b.productsId '
+                  'and b.userId=?', [session['userId']])
     sum = (cur.fetchone()[0])
     db.commit()
 
@@ -498,21 +532,21 @@ def basket_user():
 @app.route('/shopping_history', methods=['GET'])
 def shopping_history():
     if not session.get('logged_in'):
-        abort(401)
+     abort(401)
 
     db = get_db()
 
     cur = db.execute('select '                                           
-                     'h.date as date, '
-                     'p.name as p_name, '
-                     'p.model as p_model, '
-                     'p.price as price, '
-                     'h.quantity as quantity '
-                     'from users u, history h, products p '
-                     'where p.id = h.productId '
-                     'and u.id = h.userId '
-                     'and u.id = ? order by h.date desc ',
-                     [session['userId']])
+                'h.date as date, '
+                'p.name as p_name, '
+                'p.model as p_model, '
+                'p.price as price, '
+                'h.quantity as quantity '
+                'from users u, history h, products p '
+                'where p.id = h.productId '
+                'and u.id = h.userId '
+                'and u.id = ? order by h.date desc ',
+                [session['userId']])
 
     shopping_h = cur.fetchall()
 
@@ -521,10 +555,10 @@ def shopping_history():
     for h in shopping_h:
         date = datetime.fromisoformat(h['date']).strftime("%Y-%m-%d %H:%M")
         if date in history:
-            history[date].append(h)
+         history[date].append(h)
         else:
-            history[date] = []
-            history[date].append(h)
+         history[date] = []
+         history[date].append(h)
 
 
     print(history)
@@ -535,32 +569,32 @@ def shopping_history():
 @app.route('/buy')
 def buy():
     if not session.get('logged_in'):
-        abort(401)
+     abort(401)
     db = get_db()
     cur = db.execute(
-        'select p.name, p.model, p.price, b.quantity, (p.price * b.quantity)'
-        ' as cost '
-        'from basket b, products p '
-        'where b.productsId = p.id '
-        'and b.userId=?', [session['userId']])
+     'select p.name, p.model, p.price, b.quantity, (p.price * b.quantity)'
+     ' as cost '
+     'from basket b, products p '
+     'where b.productsId = p.id '
+     'and b.userId=?', [session['userId']])
 
     basket = cur.fetchall()
     cur = db.execute(
-        'select sum (p.price * b.quantity) as sum '
-        'from products p, basket b '
-        'where p.id=b.productsId and b.userId=?',
-        [session['userId']])
+     'select sum (p.price * b.quantity) as sum '
+     'from products p, basket b '
+     'where p.id=b.productsId and b.userId=?',
+     [session['userId']])
 
     sum = (cur.fetchone()[0])
 
     db.execute(
-        'insert into customers('
-        'name, model, price, quantity, customer, date ) '
-        'select p.name, p.model, p.price, b.quantity, '
-        ' b.userId, datetime() '
-        'from products p, basket b '
-        'where p.id=b.productsId and b.userId=? ',
-        [session['userId']])
+     'insert into customers('
+     'name, model, price, quantity, customer, date ) '
+     'select p.name, p.model, p.price, b.quantity, '
+     ' b.userId, datetime() '
+     'from products p, basket b '
+     'where p.id=b.productsId and b.userId=? ',
+     [session['userId']])
 
     db.commit()
     return render_template('bay_products.html', basket=basket, sum=sum)
@@ -569,20 +603,20 @@ def buy():
 @app.route('/customers', methods=['GET'])
 def customers():
     if not session.get('logged_in'):
-        abort(401)
+     abort(401)
     db = get_db()
 
     cur = db.execute(
-        'select c.name as name, '
-        'c.model as model, '
-        'c.price as price, '
-        'c.quantity as quantity, '
-        'c.customer as customer, '
-        'u.login_ as custom_login,'
-        'u.name as custom_name, '
-        'c.date as date '
-        'from customers c, users u '
-        'where c.customer = u.id')
+     'select c.name as name, '
+     'c.model as model, '
+     'c.price as price, '
+     'c.quantity as quantity, '
+     'c.customer as customer, '
+     'u.login_ as custom_login,'
+     'u.name as custom_name, '
+     'c.date as date '
+     'from customers c, users u '
+     'where c.customer = u.id')
 
     customers = cur.fetchall()
 
@@ -592,7 +626,7 @@ def customers():
 @app.route('/add_bank', methods=['GET'])
 def add_bank():
     if not session.get('logged_in'):
-        abort(401)
+     abort(401)
 
     return render_template('add_bank.html', add_bank=add_bank)
 
@@ -620,7 +654,7 @@ def add_user():
 
             if log is not None:
                 return render_template('add_user.html',
-                error='Invalid registration, a user with this log already exists!')
+                                        error='Invalid registration, a user with this log already exists!')
 
             flash('You where registered')
 
